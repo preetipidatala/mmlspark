@@ -3,6 +3,11 @@ import com.azure.ai.textanalytics.models.{AssessmentSentiment, DetectLanguageInp
   SentenceSentiment, SentimentConfidenceScores, TargetSentiment, TextAnalyticsException, TextDocumentInput}
 import com.azure.ai.textanalytics.{TextAnalyticsClient, TextAnalyticsClientBuilder}
 import com.azure.core.credential.AzureKeyCredential
+import com.microsoft.ml.spark.core.contracts.{HasConfidenceScoreCol, HasInputCol, HasLangCol, HasOutputCol, HasTextCol}
+import com.microsoft.ml.spark.core.schema.SparkBindings
+import com.microsoft.ml.spark.io.http.{HTTPParams, HasErrorCol}
+import com.microsoft.ml.spark.logging.BasicLogging
+import org.apache.spark.ml.param.ParamMap
 import com.microsoft.ml.spark.core.schema.SparkBindings
 import com.microsoft.ml.spark.io.http.{HTTPParams, HasErrorCol}
 import com.microsoft.ml.spark.core.contracts.{HasConfidenceScoreCol, HasInputCol, HasLangCol, HasOutputCol, HasTextCol}
@@ -16,8 +21,8 @@ import com.microsoft.ml.spark.core.utils.AsyncUtils.bufferedAwait
 import com.microsoft.ml.spark.logging.BasicLogging
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.{Duration, SECONDS}
+import scala.concurrent.{ExecutionContext, Future}
 
 abstract class TextAnalyticsSDKBase[T](val textAnalyticsOptions: Option[TextAnalyticsRequestOptionsV4] = None)
   extends Transformer

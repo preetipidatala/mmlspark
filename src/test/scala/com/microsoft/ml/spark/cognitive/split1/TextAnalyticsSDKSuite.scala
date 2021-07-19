@@ -40,7 +40,6 @@ class DetectedLanguageSuitev4 extends TestBase with DataFrameEquality with TextK
     val replies = detector.transform(df)
       .select("output")
       .collect()
-
     assert(replies(0).schema(0).name == "output")
     df.printSchema()
     df.show()
@@ -161,8 +160,7 @@ class TextSentimentSuiteV4 extends TestBase with DataFrameEquality with TextKey 
 
   lazy val batchedDF: DataFrame = Seq(
     (Seq("en", "en", "en"), Seq("I hate the rain.", "I love the sun", "This sucks")),
-    (Seq("en"), Seq("I love Vancouver.")),
-    (Seq(""), Seq(null))
+    (Seq("en"), Seq("I love Vancouver."))
   ).toDF("lang", "text")
 
   lazy val detector: TextSentimentV4 = new TextSentimentV4(options)
