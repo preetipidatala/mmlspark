@@ -14,10 +14,15 @@ class DetectedLanguageSuitev4 extends TestBase with DataFrameEquality with TextK
   lazy val df: DataFrame = Seq(
     (Seq("us", ""),Seq("Hello World","La carretera estaba atascada. Había mucho tráfico el día de ayer.")),
     (Seq("fr",""),Seq("Bonjour tout le monde","世界您好")),
-    (Seq(""),Seq(":) :( :D")),
+    (Seq(""),Seq(":) :( :D"))
   ).toDF("lang", "text")
 
-  val options: Option[TextAnalyticsRequestOptionsV4] = Some(new TextAnalyticsRequestOptionsV4("", true, false))
+  lazy val invalidDocDf: DataFrame = Seq(
+    (Seq("us", ""),Seq("",null))
+  ).toDF("lang", "text")
+
+  val options: Option[TextAnalyticsRequestOptionsV4] =
+    Some(new TextAnalyticsRequestOptionsV4("", true, false))
 
   lazy val detector: TextAnalyticsLanguageDetection = new TextAnalyticsLanguageDetection(options)
     .setSubscriptionKey(textKey)
@@ -26,10 +31,16 @@ class DetectedLanguageSuitev4 extends TestBase with DataFrameEquality with TextK
     .setLangCol("lang")
     .setOutputCol("output")
 
+  lazy val invalidDetector: TextAnalyticsLanguageDetection = new TextAnalyticsLanguageDetection(options)
+    .setInputCol("text")
+    .setLangCol("lang")
+    .setOutputCol("output")
+
   test("Language Detection - Output Assertion") {
     val replies = detector.transform(df)
       .select("output")
       .collect()
+
     assert(replies(0).schema(0).name == "output")
     df.printSchema()
     df.show()
@@ -46,10 +57,21 @@ class DetectedLanguageSuitev4 extends TestBase with DataFrameEquality with TextK
     val language = replies.map(row => row.getList(0))
     assert(language(0).get(0).toString == "English" && language(0).get(1).toString == "Spanish")
     assert(language(1).get(0).toString == "French" && language(1).get(1).toString == "Chinese")
+    assert(language(2).get(0).toString == "(Unknown)")
 
     val iso = replies.map(row => row.getList(1))
     assert(iso(0).get(0).toString == "en" && iso(0).get(1).toString == "es" &&
       iso(1).get(0).toString == "fr" && iso(1).get(1).toString == "zh")
+    assert(iso(2).get(0).toString == "(Unknown)")
+  }
+
+  test("Language Detection - Invalid Document Input"){
+    val replies = detector.transform(invalidDocDf)
+      .select("output.error.errorMessage")
+      .collect()
+    val errors = replies.map(row => row.getList(0))
+    assert(errors(0).get(0).toString == "Document text is empty."
+      && errors(0).get(1).toString == "Document text is empty.")
   }
 
   test("Asynch Functionality with Parameters") {
@@ -70,10 +92,12 @@ class DetectedLanguageSuitev4 extends TestBase with DataFrameEquality with TextK
 
   test("Asynch Incorrect Concurrency Functionality") {
     val badConcurrency = -1
+    val timeout = 45
     val caught =
       intercept[SparkException] {
         detector
           .setConcurrency(badConcurrency)
+          .setTimeout(timeout)
           .transform(df)
           .select("output.result.name","output.result.iso6391Name")
           .collect()
@@ -83,17 +107,45 @@ class DetectedLanguageSuitev4 extends TestBase with DataFrameEquality with TextK
 
   test("Asynch Incorrect Timeout Functionality") {
     val badTimeout = .01
+    val concurrency = 10
     val caught =
       intercept[SparkException] {
         detector
           .setTimeout(badTimeout)
+          .setConcurrency(concurrency)
           .transform(df)
           .select("output.result.name","output.result.iso6391Name")
           .collect()
       }
     assert(caught.getMessage.contains("java.util.concurrent.TimeoutException"))
   }
-}
+
+  test("Invalid Subscription Key Caught") {
+    val invalidKey = "12345"
+    val caught =
+      intercept[SparkException] {
+        invalidDetector
+          .setEndpoint("https://eastus.api.cognitive.microsoft.com/")
+          .setSubscriptionKey(invalidKey)
+          .transform(df)
+          .show()
+      }
+    assert(caught.getMessage.contains("Status code 401") &&
+      caught.getMessage.contains("invalid subscription key or wrong API endpoint"))
+  }
+
+  test("Wrong API Endpoint Caught") {
+    val invalidEndpoint = "invalidendpoint"
+    val caught =
+      intercept[SparkException] {
+        invalidDetector
+          .setEndpoint(invalidEndpoint)
+          .setSubscriptionKey(textKey)
+          .transform(df)
+          .show()
+      }
+    assert(caught.getMessage.contains("'endpoint' must be a valid URL"))
+  }}
 
 class TextSentimentSuiteV4 extends TestBase with DataFrameEquality with TextKey {
 
@@ -109,7 +161,8 @@ class TextSentimentSuiteV4 extends TestBase with DataFrameEquality with TextKey 
 
   lazy val batchedDF: DataFrame = Seq(
     (Seq("en", "en", "en"), Seq("I hate the rain.", "I love the sun", "This sucks")),
-    (Seq("en"), Seq("I love Vancouver."))
+    (Seq("en"), Seq("I love Vancouver.")),
+    (Seq(""), Seq(null))
   ).toDF("lang", "text")
 
   lazy val detector: TextSentimentV4 = new TextSentimentV4(options)
