@@ -9,7 +9,8 @@
 Azure Cognitive Services on Spark enable working with Azure’s Intelligent Services at massive scales with the Apache Spark™ distributed computing ecosystem. Cognitive Services on Spark allows users to embed general purpose and continuously improving intelligent models directly into their Apache Spark™ and SQL computations. This liberates developers from low-level networking details, so they can focus on creating intelligent, distributed applications. Each Cognitive Service acts as a SparkML transformer, so users can add services to existing SparkML pipelines. This is a great example of our [HTTP-on-Spark](http.md) capability that lets you interact with HTTP services from Apache Spark.
 
 ## Usage
-To see an example of Cognitive Services on Spark in action, take a look at [this sample notebook](../notebooks/CognitiveServices%20-%20Celebrity%20Quote%20Analysis.ipynb).
+- To see an example of Cognitive Services on Spark in action, take a look at [this sample notebook](../notebooks/CognitiveServices%20-%20Celebrity%20Quote%20Analysis.ipynb).
+- To see an example of Text Analytics in Azure Synapse, refer to [this sample notebook](../notebooks/CognitiveServices%20-%20Celebrity%20Quote%20Analysis.ipynb).
 
 ## Cognitive Services on Apache Spark™
 Currently, the following Cognitive Services are available on Apache Spark™ through MMLSpark:
@@ -39,8 +40,9 @@ Currently, the following Cognitive Services are available on Apache Spark™ thr
 - Language detection: detects language of the input text ([Scala](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/scala/com/microsoft/ml/spark/cognitive/LanguageDetector.html), [Python](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/pyspark/mmlspark.cognitive.html#module-mmlspark.cognitive.LanguageDetector))
 - Key phrase extraction: identifies the key talking points in the input text ([Scala](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/scala/com/microsoft/ml/spark/cognitive/KeyPhraseExtractor.html), [Python](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/pyspark/mmlspark.cognitive.html#module-mmlspark.cognitive.KeyPhraseExtractor))
 - Named entity recognition: identifies known entities and general named entities in the input text ([Scala](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/scala/com/microsoft/ml/spark/cognitive/NER.html), [Python](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/pyspark/mmlspark.cognitive.html#module-mmlspark.cognitive.NER))
-- Sentiment analysis: returns a score betwee 0 and 1 indicating the sentiment in the input text ([Scala](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/scala/com/microsoft/ml/spark/cognitive/TextSentiment.html), [Python](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/pyspark/mmlspark.cognitive.html#module-mmlspark.cognitive.TextSentiment))
-
+- Sentiment analysis: returns a score between 0 and 1 indicating the sentiment in the input text ([Scala](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/scala/com/microsoft/ml/spark/cognitive/TextSentiment.html), [Python](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/pyspark/mmlspark.cognitive.html#module-mmlspark.cognitive.TextSentiment))
+- PII Detection: extracts personal information from an input text and gives you the option of masking it.
+- Healthcare Analysis: extracts and labels relevant medical information from unstructured texts.
 ### Decision
 [**Anomaly Detector**](https://azure.microsoft.com/en-us/services/cognitive-services/anomaly-detector/)
 - Anomaly status of latest point: generates a model using preceding points and determines whether the latest point is anomalous ([Scala](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/scala/com/microsoft/ml/spark/cognitive/DetectLastAnomaly.html), [Python](https://mmlspark.blob.core.windows.net/docs/1.0.0-rc3/pyspark/mmlspark.cognitive.html#module-mmlspark.cognitive.DetectLastAnomaly))
